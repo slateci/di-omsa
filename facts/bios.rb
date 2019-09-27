@@ -1,6 +1,12 @@
 Facter.add(:bios_configuration) do
   if File.exists? '/opt/dell/srvadmin/bin/omreport'
-    res = {"omsa_installed" => true}
+    Facter::Core::Execution.execute("sudo systemctl is-active dsm_sa_datamgrd --quiet")
+
+    # Check if we can run OMSA first.
+    if $?.exitstatus != 0
+      res = {"omsa_installed" => true}
+      res = {"omsa_running" => false}
+    end
 
     current_key = nil
     past_start_block = false
